@@ -118,6 +118,7 @@
       <div class="popup-row"><span>Priorità</span><b><span class="badge">${esc(s.priority)}</span></b></div>
       <div class="popup-row"><span>Operational Fit</span><b>${esc(s.opFit ?? '—')}</b></div>
       <div class="popup-row"><span>Commercial Fit</span><b>${esc(s.comFit ?? '—')}</b></div>
+      ${s.geoMethod && s.geoMethod !== 'store-verified' ? `<div class="popup-sub geo-note">Posizione mappa indicativa: centro del comune.</div>` : ''}
       ${s.notes?`<div class="popup-sub" style="margin-top:8px">${esc(s.notes)}</div>`:''}
       <div class="popup-actions">${source}<button data-remove-id="${esc(s.id)}">Rimuovi</button></div>
     </div>`;

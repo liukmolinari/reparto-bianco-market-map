@@ -38,7 +38,7 @@ body{overflow:hidden}
 .backdrop{position:absolute;inset:0;background:rgba(2,8,23,.55);z-index:1250}
 .modal{position:absolute;left:12px;right:12px;bottom:12px;background:#111827;color:#fff;border:1px solid #263248;border-radius:18px;z-index:1300;box-shadow:var(--shadow);max-height:85%;overflow:auto}
 .modal-header{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;padding:16px;border-bottom:1px solid #22314c}.modal-header h3{margin:0 0 4px}.modal-body{padding:16px}.modal-actions{display:flex;gap:8px;align-items:center}.modal-actions .muted{flex:1;text-align:center;font-size:11px;color:#94a3b8}.secondary-btn,.primary-btn{border:none;border-radius:10px;font-weight:900;padding:10px 12px}.secondary-btn{background:#334155;color:#fff;white-space:nowrap}.primary-btn{width:100%;background:#e11d2e;color:#fff;padding:13px}
-@media (min-width:900px){.filters{display:flex;gap:16px;align-items:center}.filter-row{margin:0}.stats-strip{width:420px;position:absolute;top:81px;right:14px;z-index:900;border-radius:14px;overflow:hidden;border:1px solid #1f2d46;box-shadow:var(--shadow)}#map{height:calc(100% - 72px - 66px)}.modal{left:50%;right:auto;bottom:auto;top:50%;transform:translate(-50%,-50%);width:720px}.drawer{left:auto;width:430px;border-radius:20px 0 0 20px;top:72px;bottom:0;transform:translateX(110%)}.drawer.open{transform:translateX(0)}.drawer-handle{display:none}.fab{bottom:26px}}
+@media (min-width:900px){.filters{display:flex;gap:16px;align-items:center}.filter-row{margin:0}.stats-strip{width:420px;position:absolute;top:81px;right:14px;z-index:900;border-radius:14px;overflow:hidden;border:1px solid #1f2d46;box-shadow:var(--shadow)}.map-wrap{height:auto}#map{height:auto!important;bottom:0!important}.modal{left:50%;right:auto;bottom:auto;top:50%;transform:translate(-50%,-50%);width:720px}.drawer{left:auto;width:430px;border-radius:20px 0 0 20px;top:72px;bottom:0;transform:translateX(110%)}.drawer.open{transform:translateX(0)}.drawer-handle{display:none}.fab{bottom:26px}}
 
 /* Map styling copied toward the clean default OSM look */
 .leaflet-control-zoom{border:0!important;box-shadow:0 4px 14px rgba(15,23,42,.16)!important;border-radius:10px;overflow:hidden}
@@ -66,3 +66,8 @@ body{overflow:hidden}
   .stats-strip{grid-template-columns:repeat(3,minmax(88px,1fr))}
   .stat b{font-size:14px}
 }
+
+/* v1D: map always fills the remaining viewport; removes the grey footer gap. */
+.map-wrap{flex:1 1 auto!important;min-height:0!important;background:transparent!important}
+#map{position:absolute!important;inset:0!important;width:100%!important;height:100%!important;min-height:0!important}
+.geo-note{margin-top:9px;padding:7px 9px;border-radius:9px;background:#f8fafc;border:1px solid #e2e8f0;color:#64748b!important}
