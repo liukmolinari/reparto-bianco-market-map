@@ -1,100 +1,37 @@
-<!doctype html>
-<html lang="it">
-<head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-  <meta name="theme-color" content="#111827" />
-  <title>Reparto Bianco Market Map</title>
-  <link rel="manifest" href="manifest.webmanifest" />
-  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIINfQ3ynqzZpS+4ewCjMZp8XkA6z8Vw1A=" crossorigin="" />
-  <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.css" />
-  <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.Default.css" />
-  <link rel="stylesheet" href="styles.css" />
-</head>
-<body>
-  <div id="app">
-    <header class="topbar">
-      <div>
-        <div class="eyebrow">REPARTO BIANCO</div>
-        <h1>Market Map Italia</h1>
-      </div>
-      <button id="openTools" class="icon-btn" aria-label="Apri strumenti">⋯</button>
-    </header>
+# Reparto Bianco Market Map — v1
 
-    <section class="filters" aria-label="Filtri mappa">
-      <div class="filter-row" id="chainFilters"></div>
-      <div class="filter-row" id="zoneFilters"></div>
-      <div class="filter-row compact-row">
-        <button class="chip" data-priority="ALL">Tutte priorità</button>
-        <button class="chip" data-priority="A+">A+</button>
-        <button class="chip" data-priority="A">A</button>
-        <button class="chip" data-priority="A-">A-</button>
-        <button class="chip" data-priority="TOP25">Top 25</button>
-      </div>
-    </section>
+Mappa web statica e mobile-friendly. Nessun database e nessun backend.
 
-    <section class="stats-strip">
-      <div><span id="visibleCount">0</span><small>store visibili</small></div>
-      <div><span id="zoneLabel">Italia</span><small>area</small></div>
-      <div><span id="chainLabel">Tutte</span><small>catena</small></div>
-    </section>
+## Cosa contiene
+- 25 store verificati in profondità (5 per MediaWorld, Unieuro, Euronics, Trony, Comet)
+- marker differenziati per catena
+- clustering automatico
+- filtri per catena, macro-area e priorità
+- popup con Fit, note e fonte
+- aggiunta/rimozione store sul dispositivo via localStorage
+- export/import JSON delle modifiche
+- PWA installabile dalla schermata Home
 
-    <main id="map" aria-label="Mappa punti vendita"></main>
+## Pubblicazione gratuita con GitHub Pages
+1. Crea un nuovo repository GitHub, ad esempio `reparto-bianco-market-map`.
+2. Carica tutti i file di questa cartella nella root del repository.
+3. Vai su **Settings > Pages**.
+4. In **Build and deployment**, scegli **Deploy from a branch**.
+5. Branch: `main`, folder: `/ (root)`.
+6. Salva. GitHub mostrerà un URL tipo `https://USERNAME.github.io/reparto-bianco-market-map/`.
+7. Apri quel link dal telefono e usa **Aggiungi a schermata Home**.
 
-    <button id="addStoreFab" class="fab">＋</button>
+## Aggiornamenti dei negozi
+I 25 store iniziali sono in `stores.js`.
+Le modifiche fatte dall'interfaccia (aggiunta/rimozione) vengono salvate solo nel browser del dispositivo.
+Usa **Esporta dati** per creare un backup JSON e **Importa dati** per ripristinarlo su un altro dispositivo.
 
-    <aside id="drawer" class="drawer" aria-hidden="true">
-      <div class="drawer-handle"></div>
-      <div class="drawer-header">
-        <div>
-          <div class="eyebrow">STRUMENTI</div>
-          <h2>Gestione mappa</h2>
-        </div>
-        <button id="closeTools" class="icon-btn">×</button>
-      </div>
-      <div class="drawer-grid">
-        <button id="fitItaly" class="action-card">🇮🇹 <span>Vista Italia</span></button>
-        <button id="showTop25" class="action-card">★ <span>Solo Top 25</span></button>
-        <button id="exportData" class="action-card">⇩ <span>Esporta dati</span></button>
-        <label class="action-card file-card">⇧ <span>Importa dati</span><input id="importData" type="file" accept="application/json" /></label>
-        <button id="resetCustom" class="action-card danger">↺ <span>Ripristina dati locali</span></button>
-      </div>
-      <div class="drawer-note">
-        Le modifiche vengono salvate nel browser del dispositivo. Non serve alcun database online.
-      </div>
-    </aside>
+## Nota coordinate
+Le coordinate della v1 sono a livello di store/città e vanno considerate una prima base cartografica. Prima di usare la mappa come strumento operativo di navigazione, conviene rifinire le coordinate esatte dei negozi più importanti.
 
-    <div id="modalBackdrop" class="modal-backdrop hidden"></div>
-    <section id="addModal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="addTitle">
-      <div class="modal-header">
-        <div><div class="eyebrow">NUOVO STORE</div><h2 id="addTitle">Aggiungi punto vendita</h2></div>
-        <button id="closeAdd" class="icon-btn">×</button>
-      </div>
-      <form id="addStoreForm">
-        <div class="form-grid">
-          <label>Catena<select id="fChain" required></select></label>
-          <label>Nome store<input id="fName" required placeholder="es. Unieuro Verona" /></label>
-          <label>Città<input id="fCity" required placeholder="Verona" /></label>
-          <label>Regione<select id="fRegion" required></select></label>
-          <label>Priorità<select id="fPriority"><option>A+</option><option selected>A</option><option>A-</option><option>B</option><option>C</option></select></label>
-          <label>Operational Fit<input id="fOpFit" type="number" min="0" max="100" value="80" /></label>
-          <label>Commercial Fit<input id="fComFit" type="number" min="0" max="100" value="70" /></label>
-          <label>Note<textarea id="fNotes" rows="2" placeholder="GE, incasso, contesto..." ></textarea></label>
-          <label>Latitudine<input id="fLat" type="number" step="0.000001" required /></label>
-          <label>Longitudine<input id="fLng" type="number" step="0.000001" required /></label>
-        </div>
-        <div class="placement-box">
-          <button type="button" id="useMapCenter" class="secondary-btn">Usa centro mappa</button>
-          <span>oppure chiudi il form, tieni premuto sulla mappa e usa le coordinate mostrate nel popup.</span>
-        </div>
-        <button class="primary-btn" type="submit">Salva negozio</button>
-      </form>
-    </section>
-  </div>
+## Dipendenze online gratuite
+- Leaflet
+- Leaflet.markercluster
+- OpenStreetMap tiles
 
-  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
-  <script src="https://unpkg.com/leaflet.markercluster@1.5.3/dist/leaflet.markercluster.js"></script>
-  <script src="stores.js"></script>
-  <script src="app.js"></script>
-</body>
-</html>
+La mappa richiede internet per caricare le tile cartografiche. Non richiede un database o un server applicativo.

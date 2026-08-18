@@ -1,133 +1,101 @@
-(() => {
-  const CHAINS = ['MediaWorld','Unieuro','Euronics','Trony','Comet'];
-  const ZONES = ['Italia','Nord Ovest','Nord Est','Centro','Sud','Isole'];
-  const REGIONS = ['Abruzzo','Basilicata','Calabria','Campania','Emilia-Romagna','Friuli-Venezia Giulia','Lazio','Liguria','Lombardia','Marche','Molise','Piemonte','Puglia','Sardegna','Sicilia','Toscana','Trentino-Alto Adige','Umbria',"Valle d'Aosta",'Veneto'];
-  const REGION_ZONE = {
-    'Piemonte':'Nord Ovest',"Valle d'Aosta":'Nord Ovest','Liguria':'Nord Ovest','Lombardia':'Nord Ovest',
-    'Trentino-Alto Adige':'Nord Est','Veneto':'Nord Est','Friuli-Venezia Giulia':'Nord Est','Emilia-Romagna':'Nord Est',
-    'Toscana':'Centro','Umbria':'Centro','Marche':'Centro','Lazio':'Centro',
-    'Abruzzo':'Sud','Molise':'Sud','Campania':'Sud','Puglia':'Sud','Basilicata':'Sud','Calabria':'Sud',
-    'Sicilia':'Isole','Sardegna':'Isole'
-  };
-  const CHAIN_SHORT = {MediaWorld:'MW',Unieuro:'UE',Euronics:'EU',Trony:'TR',Comet:'CO'};
-  const STORE_KEY='rb-marketmap-custom-v1';
-  const REMOVED_KEY='rb-marketmap-removed-v1';
+<!doctype html>
+<!-- Reparto Bianco Market Map v1A - GitHub Pages verified -->
+<html lang="it">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#111827" />
+  <title>Reparto Bianco Market Map</title>
+  <link rel="manifest" href="manifest.webmanifest" />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIINfQ3ynqzZpS+4ewCjMZp8XkA6z8Vw1A=" crossorigin="" />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.css" />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.Default.css" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div id="app">
+    <header class="topbar">
+      <div>
+        <div class="eyebrow">REPARTO BIANCO</div>
+        <h1>Market Map Italia</h1>
+      </div>
+      <button id="openTools" class="icon-btn" aria-label="Apri strumenti">⋯</button>
+    </header>
 
-  let activeChain='ALL', activeZone='Italia', activePriority='ALL';
-  let customStores = JSON.parse(localStorage.getItem(STORE_KEY) || '[]');
-  let removed = new Set(JSON.parse(localStorage.getItem(REMOVED_KEY) || '[]'));
+    <section class="filters" aria-label="Filtri mappa">
+      <div class="filter-row" id="chainFilters"></div>
+      <div class="filter-row" id="zoneFilters"></div>
+      <div class="filter-row compact-row">
+        <button class="chip" data-priority="ALL">Tutte priorità</button>
+        <button class="chip" data-priority="A+">A+</button>
+        <button class="chip" data-priority="A">A</button>
+        <button class="chip" data-priority="A-">A-</button>
+        <button class="chip" data-priority="TOP25">Top 25</button>
+      </div>
+    </section>
 
-  const map = L.map('map', {zoomControl:true, minZoom:5}).setView([42.5,12.5], 6);
-  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-    maxZoom:19, attribution:'&copy; OpenStreetMap contributors'
-  }).addTo(map);
-  const cluster = L.markerClusterGroup({showCoverageOnHover:false, maxClusterRadius:45});
-  map.addLayer(cluster);
+    <section class="stats-strip">
+      <div><span id="visibleCount">0</span><small>store visibili</small></div>
+      <div><span id="zoneLabel">Italia</span><small>area</small></div>
+      <div><span id="chainLabel">Tutte</span><small>catena</small></div>
+    </section>
 
-  const chainFilters=document.getElementById('chainFilters');
-  const zoneFilters=document.getElementById('zoneFilters');
-  const visibleCount=document.getElementById('visibleCount');
-  const zoneLabel=document.getElementById('zoneLabel');
-  const chainLabel=document.getElementById('chainLabel');
+    <main id="map" aria-label="Mappa punti vendita"></main>
 
-  function makeChip(label, attrs={}){
-    const b=document.createElement('button'); b.className='chip'; b.textContent=label;
-    Object.entries(attrs).forEach(([k,v])=>b.dataset[k]=v); return b;
-  }
-  chainFilters.appendChild(makeChip('Tutte',{chain:'ALL'}));
-  CHAINS.forEach(c=>{const b=makeChip(c,{chain:c});b.classList.add('chain');chainFilters.appendChild(b)});
-  ZONES.forEach(z=>zoneFilters.appendChild(makeChip(z,{zone:z})));
+    <button id="addStoreFab" class="fab">＋</button>
 
-  function setActiveButtons(){
-    document.querySelectorAll('[data-chain]').forEach(b=>b.classList.toggle('active',b.dataset.chain===activeChain));
-    document.querySelectorAll('[data-zone]').forEach(b=>b.classList.toggle('active',b.dataset.zone===activeZone));
-    document.querySelectorAll('[data-priority]').forEach(b=>b.classList.toggle('active',b.dataset.priority===activePriority));
-  }
-  document.addEventListener('click',e=>{
-    const b=e.target.closest('[data-chain],[data-zone],[data-priority]'); if(!b)return;
-    if(b.dataset.chain)activeChain=b.dataset.chain;
-    if(b.dataset.zone)activeZone=b.dataset.zone;
-    if(b.dataset.priority)activePriority=b.dataset.priority;
-    setActiveButtons(); render();
-  });
+    <aside id="drawer" class="drawer" aria-hidden="true">
+      <div class="drawer-handle"></div>
+      <div class="drawer-header">
+        <div>
+          <div class="eyebrow">STRUMENTI</div>
+          <h2>Gestione mappa</h2>
+        </div>
+        <button id="closeTools" class="icon-btn">×</button>
+      </div>
+      <div class="drawer-grid">
+        <button id="fitItaly" class="action-card">🇮🇹 <span>Vista Italia</span></button>
+        <button id="showTop25" class="action-card">★ <span>Solo Top 25</span></button>
+        <button id="exportData" class="action-card">⇩ <span>Esporta dati</span></button>
+        <label class="action-card file-card">⇧ <span>Importa dati</span><input id="importData" type="file" accept="application/json" /></label>
+        <button id="resetCustom" class="action-card danger">↺ <span>Ripristina dati locali</span></button>
+      </div>
+      <div class="drawer-note">
+        Le modifiche vengono salvate nel browser del dispositivo. Non serve alcun database online.
+      </div>
+    </aside>
 
-  function allStores(){
-    return [...window.BASE_STORES.filter(s=>!removed.has(s.id)), ...customStores.filter(s=>!removed.has(s.id))];
-  }
-  function visibleStores(){
-    return allStores().filter(s=>
-      (activeChain==='ALL'||s.chain===activeChain) &&
-      (activeZone==='Italia'||s.zone===activeZone) &&
-      (activePriority==='ALL'||(activePriority==='TOP25'?s.top25:s.priority===activePriority))
-    );
-  }
-  function markerIcon(store){
-    const cls=`marker-${CHAINS.includes(store.chain)?store.chain:'Custom'}`;
-    return L.divIcon({className:'',html:`<div class="chain-marker ${cls}">${CHAIN_SHORT[store.chain]||'+'}</div>`,iconSize:[34,34],iconAnchor:[17,17]});
-  }
-  function esc(v){return String(v??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]))}
-  function popupHtml(s){
-    const source=s.source?`<a target="_blank" rel="noopener" href="${esc(s.source)}">Fonte</a>`:'';
-    return `<div class="popup-card">
-      <div class="popup-title">${esc(s.chain)} — ${esc(s.name)}</div>
-      <div class="popup-sub">${esc(s.city)} · ${esc(s.region)} · ${esc(s.zone)}</div>
-      <div class="popup-row"><span>Priorità</span><b><span class="badge">${esc(s.priority)}</span></b></div>
-      <div class="popup-row"><span>Operational Fit</span><b>${esc(s.opFit ?? '—')}</b></div>
-      <div class="popup-row"><span>Commercial Fit</span><b>${esc(s.comFit ?? '—')}</b></div>
-      ${s.notes?`<div class="popup-sub" style="margin-top:8px">${esc(s.notes)}</div>`:''}
-      <div class="popup-actions">${source}<button data-remove-id="${esc(s.id)}">Rimuovi</button></div>
-    </div>`;
-  }
-  function render(){
-    cluster.clearLayers();
-    const stores=visibleStores();
-    stores.forEach(s=>L.marker([s.lat,s.lng],{icon:markerIcon(s)}).bindPopup(popupHtml(s)).addTo(cluster));
-    visibleCount.textContent=stores.length; zoneLabel.textContent=activeZone; chainLabel.textContent=activeChain==='ALL'?'Tutte':activeChain;
-  }
-  map.on('popupopen',()=>{
-    document.querySelectorAll('[data-remove-id]').forEach(btn=>btn.onclick=()=>removeStore(btn.dataset.removeId));
-  });
-  function removeStore(id){
-    if(!confirm('Rimuovere questo negozio dalla mappa su questo dispositivo?')) return;
-    removed.add(id); localStorage.setItem(REMOVED_KEY,JSON.stringify([...removed])); map.closePopup(); render();
-  }
+    <div id="modalBackdrop" class="modal-backdrop hidden"></div>
+    <section id="addModal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="addTitle">
+      <div class="modal-header">
+        <div><div class="eyebrow">NUOVO STORE</div><h2 id="addTitle">Aggiungi punto vendita</h2></div>
+        <button id="closeAdd" class="icon-btn">×</button>
+      </div>
+      <form id="addStoreForm">
+        <div class="form-grid">
+          <label>Catena<select id="fChain" required></select></label>
+          <label>Nome store<input id="fName" required placeholder="es. Unieuro Verona" /></label>
+          <label>Città<input id="fCity" required placeholder="Verona" /></label>
+          <label>Regione<select id="fRegion" required></select></label>
+          <label>Priorità<select id="fPriority"><option>A+</option><option selected>A</option><option>A-</option><option>B</option><option>C</option></select></label>
+          <label>Operational Fit<input id="fOpFit" type="number" min="0" max="100" value="80" /></label>
+          <label>Commercial Fit<input id="fComFit" type="number" min="0" max="100" value="70" /></label>
+          <label>Note<textarea id="fNotes" rows="2" placeholder="GE, incasso, contesto..." ></textarea></label>
+          <label>Latitudine<input id="fLat" type="number" step="0.000001" required /></label>
+          <label>Longitudine<input id="fLng" type="number" step="0.000001" required /></label>
+        </div>
+        <div class="placement-box">
+          <button type="button" id="useMapCenter" class="secondary-btn">Usa centro mappa</button>
+          <span>oppure chiudi il form, tieni premuto sulla mappa e usa le coordinate mostrate nel popup.</span>
+        </div>
+        <button class="primary-btn" type="submit">Salva negozio</button>
+      </form>
+    </section>
+  </div>
 
-  // Long press/click helper coordinates
-  map.on('contextmenu',e=>L.popup().setLatLng(e.latlng).setContent(`<b>Coordinate</b><br>Lat ${e.latlng.lat.toFixed(6)}<br>Lng ${e.latlng.lng.toFixed(6)}`).openOn(map));
-
-  // Drawer
-  const drawer=document.getElementById('drawer');
-  document.getElementById('openTools').onclick=()=>{drawer.classList.add('open');drawer.setAttribute('aria-hidden','false')};
-  document.getElementById('closeTools').onclick=()=>{drawer.classList.remove('open');drawer.setAttribute('aria-hidden','true')};
-  document.getElementById('fitItaly').onclick=()=>{activeZone='Italia';setActiveButtons();map.setView([42.5,12.5],6);render()};
-  document.getElementById('showTop25').onclick=()=>{activePriority='TOP25';setActiveButtons();render()};
-
-  // Add modal
-  const modal=document.getElementById('addModal'), backdrop=document.getElementById('modalBackdrop');
-  const fChain=document.getElementById('fChain'), fRegion=document.getElementById('fRegion');
-  CHAINS.forEach(c=>fChain.add(new Option(c,c))); fChain.add(new Option('Altro','Custom'));
-  REGIONS.forEach(r=>fRegion.add(new Option(r,r)));
-  function openModal(){const c=map.getCenter();document.getElementById('fLat').value=c.lat.toFixed(6);document.getElementById('fLng').value=c.lng.toFixed(6);modal.classList.remove('hidden');backdrop.classList.remove('hidden')}
-  function closeModal(){modal.classList.add('hidden');backdrop.classList.add('hidden')}
-  document.getElementById('addStoreFab').onclick=openModal; document.getElementById('closeAdd').onclick=closeModal; backdrop.onclick=closeModal;
-  document.getElementById('useMapCenter').onclick=()=>{const c=map.getCenter();document.getElementById('fLat').value=c.lat.toFixed(6);document.getElementById('fLng').value=c.lng.toFixed(6)};
-  document.getElementById('addStoreForm').onsubmit=e=>{
-    e.preventDefault(); const region=fRegion.value;
-    const s={id:'custom-'+Date.now(),chain:fChain.value,name:document.getElementById('fName').value.trim(),city:document.getElementById('fCity').value.trim(),region,zone:REGION_ZONE[region]||'Italia',priority:document.getElementById('fPriority').value,opFit:Number(document.getElementById('fOpFit').value)||0,comFit:Number(document.getElementById('fComFit').value)||0,top25:false,lat:Number(document.getElementById('fLat').value),lng:Number(document.getElementById('fLng').value),notes:document.getElementById('fNotes').value.trim(),custom:true};
-    customStores.push(s); localStorage.setItem(STORE_KEY,JSON.stringify(customStores)); closeModal(); e.target.reset(); render(); map.setView([s.lat,s.lng],12);
-  };
-
-  // Import/export/reset
-  document.getElementById('exportData').onclick=()=>{
-    const data={version:1,customStores,removed:[...removed]}; const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'}); const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='reparto-bianco-market-map-backup.json';a.click();URL.revokeObjectURL(a.href);
-  };
-  document.getElementById('importData').onchange=async e=>{
-    const file=e.target.files[0]; if(!file)return; try{const data=JSON.parse(await file.text());customStores=Array.isArray(data.customStores)?data.customStores:[];removed=new Set(Array.isArray(data.removed)?data.removed:[]);localStorage.setItem(STORE_KEY,JSON.stringify(customStores));localStorage.setItem(REMOVED_KEY,JSON.stringify([...removed]));render();alert('Dati importati.')}catch(err){alert('File non valido.')} e.target.value='';
-  };
-  document.getElementById('resetCustom').onclick=()=>{
-    if(!confirm('Ripristinare la mappa iniziale e cancellare modifiche locali?'))return; customStores=[];removed.clear();localStorage.removeItem(STORE_KEY);localStorage.removeItem(REMOVED_KEY);render();
-  };
-
-  setActiveButtons(); render();
-  if('serviceWorker' in navigator) navigator.serviceWorker.register('./sw.js').catch(()=>{});
-})();
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+  <script src="https://unpkg.com/leaflet.markercluster@1.5.3/dist/leaflet.markercluster.js"></script>
+  <script src="stores.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
