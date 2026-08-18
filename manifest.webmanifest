@@ -1,12 +1,29 @@
-{
-  "name":"Reparto Bianco Market Map",
-  "short_name":"Market Map",
-  "start_url":"./",
-  "display":"standalone",
-  "background_color":"#0b0f14",
-  "theme_color":"#111827",
-  "icons":[
-    {"src":"icon-192.png","sizes":"192x192","type":"image/png"},
-    {"src":"icon-512.png","sizes":"512x512","type":"image/png"}
-  ]
-}
+/* Leaflet layout fallback. Loaded locally so GitHub Pages still renders the map
+   correctly even if the CDN stylesheet is delayed or blocked. */
+.leaflet-pane,.leaflet-tile,.leaflet-marker-icon,.leaflet-marker-shadow,
+.leaflet-tile-container,.leaflet-pane>svg,.leaflet-pane>canvas,.leaflet-zoom-box,
+.leaflet-image-layer,.leaflet-layer{position:absolute;left:0;top:0}
+.leaflet-container{overflow:hidden;outline:0;-webkit-tap-highlight-color:transparent;background:#eef2f4}
+.leaflet-tile,.leaflet-marker-icon,.leaflet-marker-shadow{-webkit-user-select:none;-moz-user-select:none;user-select:none;-webkit-user-drag:none}
+.leaflet-marker-icon,.leaflet-marker-shadow{display:block}
+.leaflet-container .leaflet-overlay-pane svg{max-width:none!important;max-height:none!important}
+.leaflet-container .leaflet-marker-pane img,.leaflet-container .leaflet-shadow-pane img,
+.leaflet-container .leaflet-tile-pane img,.leaflet-container img.leaflet-image-layer,
+.leaflet-container .leaflet-tile{max-width:none!important;max-height:none!important;width:auto!important;padding:0}
+.leaflet-tile{visibility:hidden}.leaflet-tile-loaded{visibility:inherit}
+.leaflet-zoom-box{width:0;height:0;box-sizing:border-box;z-index:800}
+.leaflet-pane{z-index:400}.leaflet-tile-pane{z-index:200}.leaflet-overlay-pane{z-index:400}
+.leaflet-shadow-pane{z-index:500}.leaflet-marker-pane{z-index:600}.leaflet-tooltip-pane{z-index:650}.leaflet-popup-pane{z-index:700}
+.leaflet-map-pane canvas{z-index:100}.leaflet-map-pane svg{z-index:200}
+.leaflet-control{position:relative;z-index:800;pointer-events:visiblePainted;pointer-events:auto}
+.leaflet-top,.leaflet-bottom{position:absolute;z-index:1000;pointer-events:none}
+.leaflet-top{top:0}.leaflet-right{right:0}.leaflet-bottom{bottom:0}.leaflet-left{left:0}
+.leaflet-control{float:left;clear:both}.leaflet-right .leaflet-control{float:right}.leaflet-top .leaflet-control{margin-top:10px}.leaflet-bottom .leaflet-control{margin-bottom:10px}.leaflet-left .leaflet-control{margin-left:10px}.leaflet-right .leaflet-control{margin-right:10px}
+.leaflet-control-zoom a{display:block;text-align:center;text-decoration:none;width:30px;height:30px;line-height:30px;background:#fff;color:#1f2937;border-bottom:1px solid #e5e7eb;font-weight:800}
+.leaflet-control-zoom a:first-child{border-radius:8px 8px 0 0}.leaflet-control-zoom a:last-child{border-radius:0 0 8px 8px;border-bottom:0}
+.leaflet-control-attribution{background:rgba(255,255,255,.86);padding:2px 6px;color:#64748b;font-size:9px}
+.leaflet-control-attribution a{color:#475569;text-decoration:none}
+.leaflet-popup{position:absolute;text-align:center;margin-bottom:20px}.leaflet-popup-content-wrapper{background:#fff;color:#111827;border-radius:12px;box-shadow:0 10px 30px rgba(15,23,42,.18)}
+.leaflet-popup-content{margin:14px 16px;line-height:1.4;text-align:left}.leaflet-popup-tip-container{width:40px;height:20px;position:absolute;left:50%;margin-left:-20px;overflow:hidden;pointer-events:none}.leaflet-popup-tip{width:17px;height:17px;padding:1px;margin:-10px auto 0;transform:rotate(45deg);background:#fff;box-shadow:3px 3px 8px rgba(0,0,0,.12)}
+.leaflet-popup-close-button{position:absolute;top:0;right:0;border:0;text-align:center;width:28px;height:28px;font-size:18px;color:#64748b;background:transparent;text-decoration:none}
+.leaflet-tooltip{position:absolute;padding:6px;background:#fff;border:1px solid #fff;border-radius:6px;color:#111827;white-space:nowrap;box-shadow:0 1px 3px rgba(0,0,0,.2);pointer-events:none}
