@@ -1,31 +1,68 @@
-window.BASE_STORES = [
-  {id:'mw-certosa',chain:'MediaWorld',name:'Milano Certosa',city:'Milano',region:'Lombardia',zone:'Nord Ovest',priority:'A+',opFit:100,comFit:97,top25:true,lat:45.495,lng:9.128,source:'https://www.mediaworld.it/it/store/milano-certosa-2170',notes:'Tech Village / flagship. Forte rilevanza GE e incasso.'},
-  {id:'mw-porta-roma',chain:'MediaWorld',name:'Porta di Roma / Bufalotta',city:'Roma',region:'Lazio',zone:'Centro',priority:'A+',opFit:100,comFit:97,top25:true,lat:41.970,lng:12.536,source:'https://www.mediaworld.it/it/store/porta-di-roma-2410',notes:'Tech Village / grande centro commerciale.'},
-  {id:'mw-trento',chain:'MediaWorld',name:'Trento',city:'Trento',region:'Trentino-Alto Adige',zone:'Nord Est',priority:'A+',opFit:98,comFit:97,top25:true,lat:46.074,lng:11.121,source:'https://www.mediaworld.it/it/store/trento-2154',notes:'Store baseline: software già utilizzato e misurato.'},
-  {id:'mw-lingotto',chain:'MediaWorld',name:'Torino Lingotto',city:'Torino',region:'Piemonte',zone:'Nord Ovest',priority:'A',opFit:96,comFit:97,top25:true,lat:45.035,lng:7.667,source:'https://www.mediaworld.it/it/store/torino-lingotto-2171',notes:'Full store / shopping centre.'},
-  {id:'mw-novoli',chain:'MediaWorld',name:'Firenze Novoli',city:'Firenze',region:'Toscana',zone:'Centro',priority:'A',opFit:95,comFit:97,top25:true,lat:43.799,lng:11.218,source:'https://www.mediaworld.it/it/store/firenze-novoli-2180',notes:'Full store / Parco San Donato.'},
+:root{
+  --bg:#0b1220; --panel:#0f172a; --panel-2:#111827; --ink:#f8fafc; --muted:#94a3b8;
+  --line:#1f2937; --accent:#e11d2e; --chip:#172133; --shadow:0 10px 30px rgba(2,8,23,.25);
+}
+*{box-sizing:border-box} html,body{margin:0;height:100%;font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,sans-serif;background:#e5e7eb;color:#0f172a}
+body{overflow:hidden}
+.hidden{display:none!important}
+#app{height:100%;display:flex;flex-direction:column}
+.topbar{padding:10px 14px;background:linear-gradient(180deg,#0b1220 0%,#0f1930 100%);color:#fff;border-bottom:1px solid #182236;display:flex;align-items:center;justify-content:space-between;gap:14px}
+.eyebrow{font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:#d1d5db;font-weight:800}
+.topbar h1{margin:2px 0 0;font-size:19px;line-height:1.1}
+.icon-btn{width:40px;height:40px;border-radius:12px;border:1px solid #22314c;background:#10192c;color:#fff;font-size:19px;cursor:pointer}
+.filters{padding:10px 10px 0;background:linear-gradient(180deg,#0b1220 0%,#0f1930 100%);position:relative;z-index:1000}
+.filter-row{display:flex;gap:8px;overflow:auto;padding-bottom:10px;scrollbar-width:none}.filter-row::-webkit-scrollbar{display:none}
+.chip{padding:10px 14px;border-radius:999px;border:1px solid #2b3a56;background:rgba(255,255,255,.04);color:#e5e7eb;font-weight:800;cursor:pointer;white-space:nowrap;font-size:14px}
+.chip.active{background:#ffffff;color:#0f172a;border-color:#fff;box-shadow:0 2px 8px rgba(0,0,0,.18)}
+.chip[data-chain]:not([data-chain="ALL"]){display:inline-flex;align-items:center;gap:8px}
+.chip[data-chain]:not([data-chain="ALL"])::before{content:"";width:9px;height:9px;border-radius:50%;background:#64748b;flex:0 0 auto}
+.chip[data-chain="MediaWorld"]::before{background:#d90416!important}
+.chip[data-chain="Unieuro"]::before{background:#f08a22!important}
+.chip[data-chain="Euronics"]::before{background:#2f5fbd!important}
+.chip[data-chain="Trony"]::before{background:#223574!important}
+.chip[data-chain="Comet"]::before{background:#c4141c!important}
+.stats-strip{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));margin-top:0;background:#10192c;border:1px solid #1f2d46;border-radius:14px;overflow:hidden;color:#fff;box-shadow:var(--shadow)}
+.stat{padding:10px 12px}.stat+.stat{border-left:1px solid #1f2d46}.stat b{display:block;font-size:15px}.stat span{display:block;font-size:12px;color:#9fb0ca;margin-top:2px;text-transform:uppercase;letter-spacing:.08em}
+.map-wrap{position:relative;flex:1;min-height:0}
+#map{position:absolute;inset:0;background:#dde6d3}
+.drawer{position:absolute;right:0;top:0;bottom:0;width:min(92vw,420px);background:linear-gradient(180deg,#0f172a,#111827);box-shadow:-20px 0 40px rgba(2,8,23,.32);transform:translateX(105%);transition:transform .25s ease;z-index:1200;color:#fff;border-left:1px solid #25314a}
+.drawer.open{transform:translateX(0)}
+.drawer-handle{position:absolute;left:-22px;top:24px;width:22px;height:74px;background:#10192c;border-radius:12px 0 0 12px;border:1px solid #1f2d46;border-right:none;display:flex;align-items:center;justify-content:center;color:#fff}
+.drawer-content{padding:16px 16px 24px;height:100%;overflow:auto}
+.drawer-header{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:12px}.drawer-header h2{margin:0;font-size:20px}.muted{color:#94a3b8;font-size:13px}.small{font-size:12px}.mini-row{display:flex;gap:10px;flex-wrap:wrap}.mini-card{flex:1;min-width:100px;background:#111b2e;border:1px solid #21324d;border-radius:14px;padding:12px}.mini-card b{display:block;font-size:18px;color:#fff}.mini-card span{display:block;font-size:11px;color:#9fb0ca;margin-top:4px;text-transform:uppercase;letter-spacing:.08em}
+.drawer-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:12px 0 16px}.ghost-btn,.danger-btn{border:none;border-radius:10px;padding:11px 12px;font-weight:800;cursor:pointer}.ghost-btn{background:#1e293b;color:#fff}.danger-btn{background:#3a1420;color:#fecdd3}
+.import-box{margin:14px 0;padding:14px;border:1px dashed #334155;border-radius:14px;background:#0d1526}.import-box label{display:block;margin-top:8px;color:#fff;font-weight:700}
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.form-grid .full{grid-column:1/-1}
+.input, select, textarea{width:100%;border-radius:10px;border:1px solid #334155;background:#0f172a;color:#fff;padding:11px 12px;font:inherit} textarea{min-height:74px;resize:vertical}
+.fab{position:absolute;right:18px;bottom:18px;width:60px;height:60px;border:none;border-radius:50%;background:#e11d2e;color:#fff;font-size:36px;line-height:1;box-shadow:0 14px 24px rgba(225,29,46,.32);z-index:1100;cursor:pointer}
+.backdrop{position:absolute;inset:0;background:rgba(2,8,23,.55);z-index:1250}
+.modal{position:absolute;left:12px;right:12px;bottom:12px;background:#111827;color:#fff;border:1px solid #263248;border-radius:18px;z-index:1300;box-shadow:var(--shadow);max-height:85%;overflow:auto}
+.modal-header{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;padding:16px;border-bottom:1px solid #22314c}.modal-header h3{margin:0 0 4px}.modal-body{padding:16px}.modal-actions{display:flex;gap:8px;align-items:center}.modal-actions .muted{flex:1;text-align:center;font-size:11px;color:#94a3b8}.secondary-btn,.primary-btn{border:none;border-radius:10px;font-weight:900;padding:10px 12px}.secondary-btn{background:#334155;color:#fff;white-space:nowrap}.primary-btn{width:100%;background:#e11d2e;color:#fff;padding:13px}
+@media (min-width:900px){.filters{display:flex;gap:16px;align-items:center}.filter-row{margin:0}.stats-strip{width:420px;position:absolute;top:81px;right:14px;z-index:900;border-radius:14px;overflow:hidden;border:1px solid #1f2d46;box-shadow:var(--shadow)}#map{height:calc(100% - 72px - 66px)}.modal{left:50%;right:auto;bottom:auto;top:50%;transform:translate(-50%,-50%);width:720px}.drawer{left:auto;width:430px;border-radius:20px 0 0 20px;top:72px;bottom:0;transform:translateX(110%)}.drawer.open{transform:translateX(0)}.drawer-handle{display:none}.fab{bottom:26px}}
 
-  {id:'ue-roncadelle',chain:'Unieuro',name:'Brescia - Roncadelle',city:'Roncadelle',region:'Lombardia',zone:'Nord Ovest',priority:'A',opFit:92,comFit:91,top25:true,lat:45.527,lng:10.154,source:'https://www.unieuro.it/online/negozi/Unieuro-Brescia---Roncadelle',notes:'Direct / grande area retail.'},
-  {id:'ue-parma',chain:'Unieuro',name:'Parma - Torri',city:'Parma',region:'Emilia-Romagna',zone:'Nord Est',priority:'A',opFit:91,comFit:91,top25:true,lat:44.801,lng:10.328,source:'https://www.unieuro.it/online/negozi',notes:'Direct / Centro Torri.'},
-  {id:'ue-moncalieri',chain:'Unieuro',name:'Moncalieri',city:'Moncalieri',region:'Piemonte',zone:'Nord Ovest',priority:'A-',opFit:91,comFit:91,top25:true,lat:45.000,lng:7.682,source:'https://www.unieuro.it/online/negozi',notes:'Direct / retail zone.'},
-  {id:'ue-bologna-lame',chain:'Unieuro',name:'Bologna - Lame',city:'Bologna',region:'Emilia-Romagna',zone:'Nord Est',priority:'A',opFit:90,comFit:91,top25:true,lat:44.521,lng:11.326,source:'https://www.unieuro.it/online/negozi',notes:'Direct / shopping-centre context.'},
-  {id:'ue-mestre',chain:'Unieuro',name:'Mestre - via Don Tosatto',city:'Mestre',region:'Veneto',zone:'Nord Est',priority:'A',opFit:90,comFit:91,top25:true,lat:45.490,lng:12.240,source:'https://www.unieuro.it/online/negozi',notes:'Direct / grande bacino commerciale.'},
+/* Map styling copied toward the clean default OSM look */
+.leaflet-control-zoom{border:0!important;box-shadow:0 4px 14px rgba(15,23,42,.16)!important;border-radius:10px;overflow:hidden}
+.leaflet-control-zoom a{color:#0f172a!important}
+.leaflet-control-attribution{background:rgba(255,255,255,.78)!important;border-radius:8px 0 0 0;opacity:1}
+.leaflet-popup-content-wrapper{border-radius:16px;box-shadow:0 10px 28px rgba(15,23,42,.18)}
+.leaflet-popup-content{margin:14px}
+.popup-card{min-width:220px}.popup-title{font-weight:800;font-size:15px;margin-bottom:3px}.popup-sub{color:#64748b;font-size:12px;line-height:1.35}.popup-row{display:flex;justify-content:space-between;gap:10px;margin-top:10px;font-size:13px;color:#334155}.badge{display:inline-block;padding:4px 8px;border-radius:999px;background:#eef2ff;color:#1e3a8a;font-size:11px;font-weight:800}.popup-actions{display:flex;align-items:center;justify-content:space-between;margin-top:12px}.popup-actions a,.popup-actions button{font:inherit}.popup-actions a{color:#0f172a;font-weight:800;text-decoration:none}.popup-actions button{border:none;background:#fee2e2;color:#991b1b;padding:8px 10px;border-radius:10px;font-weight:800;cursor:pointer}
 
-  {id:'co-carpi',chain:'Comet',name:'Carpi',city:'Carpi',region:'Emilia-Romagna',zone:'Nord Est',priority:'A+',opFit:94,comFit:68,top25:true,lat:44.783,lng:10.885,source:'https://www.comet.it/negozi/emilia-romagna/modena/comet-carpi',notes:'Pagina store: Piccoli e Grandi elettrodomestici.'},
-  {id:'co-casalecchio',chain:'Comet',name:'Casalecchio',city:'Casalecchio di Reno',region:'Emilia-Romagna',zone:'Nord Est',priority:'A+',opFit:94,comFit:68,top25:true,lat:44.475,lng:11.277,source:'https://www.comet.it/negozi/emilia-romagna/bologna/comet-casalecchio',notes:'Full consumer + materiale elettrico.'},
-  {id:'co-castelguelfo',chain:'Comet',name:'Castel Guelfo',city:'Castel Guelfo',region:'Emilia-Romagna',zone:'Nord Est',priority:'A+',opFit:94,comFit:68,top25:true,lat:44.432,lng:11.680,source:'https://www.comet.it/negozi/emilia-romagna/bologna/comet-castel-guelfo',notes:'Retail park / forte segnale GE.'},
-  {id:'co-fidenza',chain:'Comet',name:'Fidenza',city:'Fidenza',region:'Emilia-Romagna',zone:'Nord Est',priority:'A+',opFit:94,comFit:68,top25:true,lat:44.866,lng:10.060,source:'https://www.comet.it/negozi/emilia-romagna/parma/comet-fidenza',notes:'Adiacente Fidenza Village; GE esplicito.'},
-  {id:'co-verona',chain:'Comet',name:'Verona c.c. Grande Mela',city:'Lugagnano di Sona',region:'Veneto',zone:'Nord Est',priority:'A+',opFit:94,comFit:68,top25:true,lat:45.430,lng:10.820,source:'https://www.comet.it/negozi/veneto/verona/comet-verona-grande-mela',notes:'Shopping centre / GE esplicito.'},
+.map-marker-wrap{background:transparent!important;border:none!important}
+.chain-marker{display:flex;align-items:center;justify-content:center;overflow:hidden;border:3px solid #fff;box-shadow:0 5px 16px rgba(15,23,42,.22);background:#fff}
+.chain-marker img{display:block;width:100%;height:100%;object-fit:contain}
+.marker-MediaWorld,.marker-Unieuro,.marker-Euronics{width:42px;height:42px;border-radius:50%;padding:0;background:#fff}
+.marker-MediaWorld img,.marker-Unieuro img,.marker-Euronics img{width:100%;height:100%;object-fit:cover}
+.marker-Trony{width:64px;height:36px;border-radius:12px;padding:4px 7px;background:#1d2c64}
+.marker-Comet{width:66px;height:36px;border-radius:12px;padding:3px 6px;background:#fff}
+.marker-Custom{width:40px;height:40px;border-radius:50%;background:#111827;color:#fff;font-weight:900;font-size:20px}
 
-  {id:'eu-mondovi',chain:'Euronics',name:'Mondovì',city:'Mondovì',region:'Piemonte',zone:'Nord Ovest',priority:'A+',opFit:95,comFit:65,top25:true,lat:44.389,lng:7.821,source:'https://www.euronics.it/store?storeId=8033695243614',notes:'Catalogo dedicato Grandi Elettrodomestici.'},
-  {id:'eu-torino-romania',chain:'Euronics',name:'Torino Corso Romania',city:'Torino',region:'Piemonte',zone:'Nord Ovest',priority:'A+',opFit:95,comFit:65,top25:true,lat:45.110,lng:7.730,source:'https://www.euronics.it/store?storeId=8058669661690',notes:'Catalogo GE dedicato.'},
-  {id:'eu-venaria',chain:'Euronics',name:'Venaria Reale',city:'Venaria Reale',region:'Piemonte',zone:'Nord Ovest',priority:'A+',opFit:95,comFit:65,top25:true,lat:45.132,lng:7.632,source:'https://www.euronics.it/store?storeId=8058669661799',notes:'Full store / shopping centre / GE dedicato.'},
-  {id:'eu-elmas',chain:'Euronics',name:'Cagliari - Elmas',city:'Elmas',region:'Sardegna',zone:'Isole',priority:'A+',opFit:93,comFit:65,top25:true,lat:39.267,lng:9.051,source:'https://www.euronics.it/store?storeId=8058669661898',notes:'Catalogo GE dedicato.'},
-  {id:'eu-torino-nizza',chain:'Euronics',name:'Torino Via Nizza',city:'Torino',region:'Piemonte',zone:'Nord Ovest',priority:'A+',opFit:90,comFit:65,top25:true,lat:45.056,lng:7.678,source:'https://www.euronics.it/store?storeId=8033695242952',notes:'Urban full-store / GE dedicato.'},
+.custom-cluster{display:flex;align-items:center;justify-content:center;border-radius:50%;background:#111827;border:3px solid rgba(255,255,255,.98);box-shadow:0 5px 16px rgba(15,23,42,.2);color:#fff;font-weight:900;font-size:13px}
+.custom-cluster span{line-height:1}
 
-  {id:'tr-collegno',chain:'Trony',name:'Collegno',city:'Collegno',region:'Piemonte',zone:'Nord Ovest',priority:'A+',opFit:86,comFit:52,top25:true,lat:45.077,lng:7.573,source:'https://www.trony.it/collegno-TRO402/',notes:'Pagina store espone GE e categorie incasso.'},
-  {id:'tr-sesto',chain:'Trony',name:'Sesto San Giovanni',city:'Sesto San Giovanni',region:'Lombardia',zone:'Nord Ovest',priority:'A+',opFit:86,comFit:52,top25:true,lat:45.534,lng:9.235,source:'https://www.trony.it/sesto-san-giovanni-TRO459/',notes:'GE + incasso dettagliato.'},
-  {id:'tr-roma',chain:'Trony',name:'Roma - Via B. Alimena',city:'Roma',region:'Lazio',zone:'Centro',priority:'A+',opFit:84,comFit:52,top25:true,lat:41.860,lng:12.620,source:'https://www.trony.it/ROMA-TRO511',notes:'Grande bacino metropolitano; GE/incasso.'},
-  {id:'tr-bologna',chain:'Trony',name:'Bologna',city:'Bologna',region:'Emilia-Romagna',zone:'Nord Est',priority:'A',opFit:82,comFit:52,top25:true,lat:44.494,lng:11.342,source:'https://www.trony.it/bologna-TRO450/',notes:'Pagina store ufficiale.'},
-  {id:'tr-pomezia',chain:'Trony',name:'Pomezia',city:'Pomezia',region:'Lazio',zone:'Centro',priority:'A',opFit:82,comFit:52,top25:true,lat:41.669,lng:12.501,source:'https://www.trony.it/pomezia-TRO499/',notes:'Bacino retail suburbano.'}
-];
+@media (max-width:720px){
+  .topbar h1{font-size:17px}
+  .chip{padding:9px 12px;font-size:13px}
+  .stats-strip{grid-template-columns:repeat(3,minmax(88px,1fr))}
+  .stat b{font-size:14px}
+}
