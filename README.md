@@ -1,44 +1,23 @@
-# Reparto Bianco Market Map — v1B
+# Reparto Bianco Market Map — v1C
 
 Mappa web statica e mobile-friendly. Nessun database e nessun backend.
 
-## Cosa contiene
-- 25 store verificati in profondità (5 per MediaWorld, Unieuro, Euronics, Trony, Comet)
-- marker differenziati per catena
-- clustering automatico
-- filtri per catena, macro-area e priorità
-- popup con Fit, note e fonte
-- aggiunta/rimozione store sul dispositivo via localStorage
-- export/import JSON delle modifiche
-- PWA installabile dalla schermata Home
+## Novità v1C
+- marker con i **loghi reali** delle catene (MediaWorld, Unieuro, Euronics, Trony, Comet)
+- stile mappa riportato verso il look **OpenStreetMap classico**, più leggibile e simile al riferimento
+- cluster più compatti e leggibili
+- filtri per catena, area e priorità
+- aggiunta/rimozione negozi locale dal dispositivo
+- backup/import modifiche in JSON
+- PWA installabile da browser
 
-## Pubblicazione gratuita con GitHub Pages
-1. Crea un nuovo repository GitHub, ad esempio `reparto-bianco-market-map`.
-2. Carica tutti i file di questa cartella nella root del repository.
-3. Vai su **Settings > Pages**.
-4. In **Build and deployment**, scegli **Deploy from a branch**.
-5. Branch: `main`, folder: `/ (root)`.
-6. Salva. GitHub mostrerà un URL tipo `https://USERNAME.github.io/reparto-bianco-market-map/`.
-7. Apri quel link dal telefono e usa **Aggiungi a schermata Home**.
+## Pubblicazione su GitHub Pages
+1. carica tutti i file del pacchetto nella root del repository
+2. in **Settings → Pages** lascia `main` e `/(root)`
+3. attendi il deploy
+4. apri:
 
-## Aggiornamenti dei negozi
-I 25 store iniziali sono in `stores.js`.
-Le modifiche fatte dall'interfaccia (aggiunta/rimozione) vengono salvate solo nel browser del dispositivo.
-Usa **Esporta dati** per creare un backup JSON e **Importa dati** per ripristinarlo su un altro dispositivo.
+`https://liukmolinari.github.io/reparto-bianco-market-map/?v=1c`
 
-## Nota coordinate
-Le coordinate della v1 sono a livello di store/città e vanno considerate una prima base cartografica. Prima di usare la mappa come strumento operativo di navigazione, conviene rifinire le coordinate esatte dei negozi più importanti.
-
-## Dipendenze online gratuite
-- Leaflet
-- Leaflet.markercluster
-- OpenStreetMap tiles
-
-La mappa richiede internet per caricare le tile cartografiche. Non richiede un database o un server applicativo.
-
-
-## v1B
-- rendering Leaflet robusto con fallback CSS locale
-- base CARTO Positron più pulita
-- marker e cluster semplificati
-- service worker network-first per evitare cache di versioni vecchie
+## Dati locali
+Le modifiche fatte con **Aggiungi negozio** o **Rimuovi** vengono salvate solo sul dispositivo corrente, finché non esporti/importi il backup JSON.

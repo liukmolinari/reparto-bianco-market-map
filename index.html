@@ -1,5 +1,5 @@
 <!doctype html>
-<!-- Reparto Bianco Market Map v1B - clean map + Leaflet fallback -->
+<!-- Reparto Bianco Market Map v1C - logo markers + default OSM map style -->
 <html lang="it">
 <head>
   <meta charset="utf-8" />
@@ -8,7 +8,6 @@
   <title>Reparto Bianco Market Map</title>
   <link rel="manifest" href="manifest.webmanifest" />
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-  <link rel="stylesheet" href="leaflet-fallback.css" />
   <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.css" />
   <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.Default.css" />
   <link rel="stylesheet" href="styles.css" />
@@ -26,72 +25,98 @@
     <section class="filters" aria-label="Filtri mappa">
       <div class="filter-row" id="chainFilters"></div>
       <div class="filter-row" id="zoneFilters"></div>
-      <div class="filter-row compact-row">
-        <button class="chip" data-priority="ALL">Tutte priorità</button>
+      <div class="filter-row">
+        <button class="chip active" data-priority="ALL">Tutte priorità</button>
         <button class="chip" data-priority="A+">A+</button>
         <button class="chip" data-priority="A">A</button>
         <button class="chip" data-priority="A-">A-</button>
         <button class="chip" data-priority="TOP25">Top 25</button>
       </div>
+      <div class="stats-strip" aria-label="Riepilogo filtri">
+        <div class="stat"><b id="visibleCount">0</b><span>Store visibili</span></div>
+        <div class="stat"><b id="zoneLabel">Italia</b><span>Area</span></div>
+        <div class="stat"><b id="chainLabel">Tutte</b><span>Catena</span></div>
+      </div>
     </section>
 
-    <section class="stats-strip">
-      <div><span id="visibleCount">0</span><small>store visibili</small></div>
-      <div><span id="zoneLabel">Italia</span><small>area</small></div>
-      <div><span id="chainLabel">Tutte</span><small>catena</small></div>
-    </section>
+    <div class="map-wrap">
+      <div id="map" aria-label="Mappa dei punti vendita"></div>
 
-    <main id="map" aria-label="Mappa punti vendita"></main>
+      <aside id="drawer" class="drawer" aria-hidden="true">
+        <div class="drawer-handle">›</div>
+        <div class="drawer-content">
+          <div class="drawer-header">
+            <div>
+              <h2>Strumenti</h2>
+              <div class="muted">Filtri rapidi, backup e gestione negozi.</div>
+            </div>
+            <button id="closeTools" class="icon-btn" aria-label="Chiudi strumenti">✕</button>
+          </div>
 
-    <button id="addStoreFab" class="fab">＋</button>
+          <div class="mini-row">
+            <div class="mini-card"><b id="miniVisible">Mappa</b><span>Gestione locale</span></div>
+            <div class="mini-card"><b>PWA</b><span>Apribile anche da telefono</span></div>
+          </div>
 
-    <aside id="drawer" class="drawer" aria-hidden="true">
-      <div class="drawer-handle"></div>
-      <div class="drawer-header">
-        <div>
-          <div class="eyebrow">STRUMENTI</div>
-          <h2>Gestione mappa</h2>
+          <div class="drawer-actions">
+            <button id="fitItaly" class="ghost-btn">Rientra su Italia</button>
+            <button id="showTop25" class="ghost-btn">Mostra Top 25</button>
+          </div>
+
+          <div class="import-box">
+            <div><strong>Backup dati locali</strong></div>
+            <div class="muted">Esporta o reimporta i negozi aggiunti/rimossi sul dispositivo.</div>
+            <div class="drawer-actions" style="margin-bottom:0">
+              <button id="exportData" class="ghost-btn">Esporta backup</button>
+              <label class="ghost-btn" style="display:flex;align-items:center;justify-content:center">Importa<input id="importData" type="file" accept="application/json" hidden></label>
+            </div>
+          </div>
+
+          <div class="import-box">
+            <div><strong>Reset modifiche locali</strong></div>
+            <div class="muted">Ripristina la mappa iniziale su questo dispositivo.</div>
+            <div class="drawer-actions" style="margin-bottom:0;grid-template-columns:1fr">
+              <button id="resetCustom" class="danger-btn">Ripristina mappa iniziale</button>
+            </div>
+          </div>
         </div>
-        <button id="closeTools" class="icon-btn">×</button>
-      </div>
-      <div class="drawer-grid">
-        <button id="fitItaly" class="action-card">🇮🇹 <span>Vista Italia</span></button>
-        <button id="showTop25" class="action-card">★ <span>Solo Top 25</span></button>
-        <button id="exportData" class="action-card">⇩ <span>Esporta dati</span></button>
-        <label class="action-card file-card">⇧ <span>Importa dati</span><input id="importData" type="file" accept="application/json" /></label>
-        <button id="resetCustom" class="action-card danger">↺ <span>Ripristina dati locali</span></button>
-      </div>
-      <div class="drawer-note">
-        Le modifiche vengono salvate nel browser del dispositivo. Non serve alcun database online.
-      </div>
-    </aside>
+      </aside>
 
-    <div id="modalBackdrop" class="modal-backdrop hidden"></div>
-    <section id="addModal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="addTitle">
-      <div class="modal-header">
-        <div><div class="eyebrow">NUOVO STORE</div><h2 id="addTitle">Aggiungi punto vendita</h2></div>
-        <button id="closeAdd" class="icon-btn">×</button>
-      </div>
-      <form id="addStoreForm">
-        <div class="form-grid">
-          <label>Catena<select id="fChain" required></select></label>
-          <label>Nome store<input id="fName" required placeholder="es. Unieuro Verona" /></label>
-          <label>Città<input id="fCity" required placeholder="Verona" /></label>
-          <label>Regione<select id="fRegion" required></select></label>
-          <label>Priorità<select id="fPriority"><option>A+</option><option selected>A</option><option>A-</option><option>B</option><option>C</option></select></label>
-          <label>Operational Fit<input id="fOpFit" type="number" min="0" max="100" value="80" /></label>
-          <label>Commercial Fit<input id="fComFit" type="number" min="0" max="100" value="70" /></label>
-          <label>Note<textarea id="fNotes" rows="2" placeholder="GE, incasso, contesto..." ></textarea></label>
-          <label>Latitudine<input id="fLat" type="number" step="0.000001" required /></label>
-          <label>Longitudine<input id="fLng" type="number" step="0.000001" required /></label>
+      <button id="addStoreFab" class="fab" aria-label="Aggiungi negozio">+</button>
+
+      <div id="modalBackdrop" class="backdrop hidden"></div>
+      <section id="addModal" class="modal hidden" aria-labelledby="addStoreTitle">
+        <div class="modal-header">
+          <div>
+            <h3 id="addStoreTitle">Aggiungi negozio</h3>
+            <div class="muted">Il negozio viene salvato solo sul dispositivo attuale, ma puoi esportarlo con il backup.</div>
+          </div>
+          <button id="closeAdd" class="icon-btn" aria-label="Chiudi">✕</button>
         </div>
-        <div class="placement-box">
-          <button type="button" id="useMapCenter" class="secondary-btn">Usa centro mappa</button>
-          <span>oppure chiudi il form, tieni premuto sulla mappa e usa le coordinate mostrate nel popup.</span>
+        <div class="modal-body">
+          <form id="addStoreForm">
+            <div class="form-grid">
+              <div><label class="muted">Catena</label><select id="fChain"></select></div>
+              <div><label class="muted">Priorità</label><select id="fPriority"><option>A+</option><option>A</option><option>A-</option></select></div>
+              <div class="full"><label class="muted">Nome negozio</label><input id="fName" class="input" required /></div>
+              <div><label class="muted">Città</label><input id="fCity" class="input" required /></div>
+              <div><label class="muted">Regione</label><select id="fRegion"></select></div>
+              <div><label class="muted">Operational Fit</label><input id="fOpFit" class="input" type="number" min="0" max="100" /></div>
+              <div><label class="muted">Commercial Fit</label><input id="fComFit" class="input" type="number" min="0" max="100" /></div>
+              <div><label class="muted">Latitudine</label><input id="fLat" class="input" type="number" step="0.000001" required /></div>
+              <div><label class="muted">Longitudine</label><input id="fLng" class="input" type="number" step="0.000001" required /></div>
+              <div class="full"><button type="button" id="useMapCenter" class="secondary-btn">Usa il centro mappa corrente</button></div>
+              <div class="full"><label class="muted">Note</label><textarea id="fNotes"></textarea></div>
+            </div>
+            <div class="modal-actions" style="margin-top:14px">
+              <button type="button" id="cancelAdd" class="secondary-btn" onclick="document.getElementById('closeAdd').click()">Annulla</button>
+              <div class="muted">Suggerimento: puoi anche usare il click destro/pressione prolungata per leggere coordinate sulla mappa.</div>
+              <button type="submit" class="primary-btn">Salva negozio</button>
+            </div>
+          </form>
         </div>
-        <button class="primary-btn" type="submit">Salva negozio</button>
-      </form>
-    </section>
+      </section>
+    </div>
   </div>
 
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
