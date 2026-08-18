@@ -17,11 +17,17 @@
   let customStores = JSON.parse(localStorage.getItem(STORE_KEY) || '[]');
   let removed = new Set(JSON.parse(localStorage.getItem(REMOVED_KEY) || '[]'));
 
-  const map = L.map('map', {zoomControl:true, minZoom:5}).setView([42.5,12.5], 6);
-  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-    maxZoom:19, attribution:'&copy; OpenStreetMap contributors'
+  const map = L.map('map', {zoomControl:true, minZoom:5, zoomSnap:0.5}).setView([42.55,12.55], 5.8);
+  // CARTO Positron keeps the map intentionally light and removes most visual noise.
+  // OpenStreetMap data remain the geographic source.
+  L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+    subdomains:'abcd', maxZoom:20,
+    attribution:'&copy; OpenStreetMap contributors &copy; CARTO'
   }).addTo(map);
-  const cluster = L.markerClusterGroup({showCoverageOnHover:false, maxClusterRadius:45});
+  const cluster = L.markerClusterGroup({
+    showCoverageOnHover:false, maxClusterRadius:52, spiderfyOnMaxZoom:true,
+    disableClusteringAtZoom:12
+  });
   map.addLayer(cluster);
 
   const chainFilters=document.getElementById('chainFilters');
@@ -99,7 +105,7 @@
   const drawer=document.getElementById('drawer');
   document.getElementById('openTools').onclick=()=>{drawer.classList.add('open');drawer.setAttribute('aria-hidden','false')};
   document.getElementById('closeTools').onclick=()=>{drawer.classList.remove('open');drawer.setAttribute('aria-hidden','true')};
-  document.getElementById('fitItaly').onclick=()=>{activeZone='Italia';setActiveButtons();map.setView([42.5,12.5],6);render()};
+  document.getElementById('fitItaly').onclick=()=>{activeZone='Italia';setActiveButtons();map.setView([42.55,12.55],5.8);render()};
   document.getElementById('showTop25').onclick=()=>{activePriority='TOP25';setActiveButtons();render()};
 
   // Add modal

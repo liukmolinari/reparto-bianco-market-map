@@ -1,4 +1,4 @@
-# Reparto Bianco Market Map — v1
+# Reparto Bianco Market Map — v1B
 
 Mappa web statica e mobile-friendly. Nessun database e nessun backend.
 
@@ -35,3 +35,10 @@ Le coordinate della v1 sono a livello di store/città e vanno considerate una pr
 - OpenStreetMap tiles
 
 La mappa richiede internet per caricare le tile cartografiche. Non richiede un database o un server applicativo.
+
+
+## v1B
+- rendering Leaflet robusto con fallback CSS locale
+- base CARTO Positron più pulita
+- marker e cluster semplificati
+- service worker network-first per evitare cache di versioni vecchie

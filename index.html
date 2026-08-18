@@ -1,5 +1,5 @@
 <!doctype html>
-<!-- Reparto Bianco Market Map v1A - GitHub Pages verified -->
+<!-- Reparto Bianco Market Map v1B - clean map + Leaflet fallback -->
 <html lang="it">
 <head>
   <meta charset="utf-8" />
@@ -7,7 +7,8 @@
   <meta name="theme-color" content="#111827" />
   <title>Reparto Bianco Market Map</title>
   <link rel="manifest" href="manifest.webmanifest" />
-  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIINfQ3ynqzZpS+4ewCjMZp8XkA6z8Vw1A=" crossorigin="" />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <link rel="stylesheet" href="leaflet-fallback.css" />
   <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.css" />
   <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.Default.css" />
   <link rel="stylesheet" href="styles.css" />
@@ -93,7 +94,7 @@
     </section>
   </div>
 
-  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   <script src="https://unpkg.com/leaflet.markercluster@1.5.3/dist/leaflet.markercluster.js"></script>
   <script src="stores.js"></script>
   <script src="app.js"></script>
